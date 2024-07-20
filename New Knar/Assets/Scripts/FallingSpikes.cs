@@ -7,6 +7,20 @@ public class FallingSpikes : MonoBehaviour
     public float detectionRadius = 1.0f; // Radio de detección del jugador
     public float fallDelay = 1.0f; // Tiempo que tarda en caer después de la detección
     private bool isFalling = false;
+    private Rigidbody rb;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            Debug.LogError("Rigidbody no encontrado en el objeto FallingSpikes.");
+        }
+        else
+        {
+            rb.isKinematic = true; // Asegurarse de que las espinas no se muevan al inicio
+        }
+    }
 
     private void Update()
     {
@@ -26,13 +40,22 @@ public class FallingSpikes : MonoBehaviour
         isFalling = true;
         yield return new WaitForSeconds(fallDelay);
         // Activa la física para que las espinas caigan
-        Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.isKinematic = false;
         }
-        // Opcional: Puedes destruir las espinas después de un tiempo
-        // Destroy(gameObject, 2.0f);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        // Verifica si las espinas han tocado el suelo
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            // Detiene el movimiento de las espinas
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+            }
+        }
     }
 }
-
